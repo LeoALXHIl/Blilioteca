@@ -36,4 +36,10 @@ class LivrosController {
   Future<List<Emprestimo>> historicoEmprestimos(int livroId) async {
     return await _dbHelper.historicoEmprestimos(livroId);
   }
+
+  Future<List<String>> listarGeneros() async {
+    final db = await _dbHelper.database;
+    final result = await db.rawQuery('SELECT DISTINCT genero FROM livros ORDER BY genero ASC');
+    return result.map((e) => e['genero'] as String).toList();
+  }
 }

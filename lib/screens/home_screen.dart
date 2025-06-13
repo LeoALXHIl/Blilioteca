@@ -47,6 +47,31 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: Text("Biblioteca")),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Colors.blue),
+              child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.category),
+              title: const Text('Listar Categorias'),
+              onTap: () {
+                Navigator.pushNamed(context, '/categorias');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.bookmark),
+              title: const Text('Listar Gêneros'),
+              onTap: () {
+                Navigator.pushNamed(context, '/generos');
+              },
+            ),
+          ],
+        ),
+      ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : ListView(

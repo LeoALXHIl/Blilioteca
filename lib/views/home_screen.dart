@@ -6,6 +6,8 @@ import 'package:sapetshop/views/add_livro_screen.dart';
 import 'package:sapetshop/views/livro_detalhe_screen.dart';
 import 'package:sapetshop/screens/add_categoria_screen.dart';
 import 'package:sapetshop/screens/listar_categoria_screen.dart';
+import 'package:sapetshop/screens/listar_genero_screen.dart';
+import 'package:sapetshop/screens/perfil_usuario_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -97,6 +99,28 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
+            ListTile(
+              leading: Icon(Icons.bookmark),
+              title: Text('Listar Gêneros'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ListarGeneroScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Perfil'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PerfilUsuarioScreen()),
+                );
+              },
+            ),
+            // Removido: ListTile de Pets
+            // Removido: ListTile de Consultas
             // Adicione mais ListTile para outras funções do app
           ],
         ),
