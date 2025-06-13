@@ -6,6 +6,8 @@ import 'package:sapetshop/models/livro_model.dart';
 import 'package:sapetshop/views/home_screen.dart';
 
 class AddLivroScreen extends StatefulWidget {
+  final Livro? livro;
+  AddLivroScreen({Key? key, this.livro}) : super(key: key);
   @override
   State<AddLivroScreen> createState() => _AddLivroScreenState();
 }
@@ -36,7 +38,7 @@ class _AddLivroScreenState extends State<AddLivroScreen> {
         genero: _genero,
         tipo: _tipo,
         quantidade: _quantidade,
-        capa: _capa,
+        capa: _capa, categoria: '',
       );
       //mando para o banco
       try {

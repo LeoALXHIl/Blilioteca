@@ -9,6 +9,7 @@ class Livro {
   final String tipo; // "Físico" ou "E-book"
   final int quantidade;
   final String capa;
+  final String categoria;
 
   Livro({
     this.id,
@@ -21,6 +22,7 @@ class Livro {
     required this.tipo,
     required this.quantidade,
     required this.capa,
+    required this.categoria,
   });
 
   Map<String, dynamic> toMap() {
@@ -35,6 +37,7 @@ class Livro {
       'tipo': tipo,
       'quantidade': quantidade,
       'capa': capa,
+      'categoria': categoria,
     };
   }
 
@@ -50,6 +53,7 @@ class Livro {
       tipo: map['tipo'] as String,
       quantidade: map['quantidade'] as int,
       capa: map['capa'] as String,
+      categoria: (map['categoria'] is String && map['categoria'] != null) ? map['categoria'] as String : (map['categoria']?.toString() ?? ''),
     );
   }
 }

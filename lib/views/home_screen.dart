@@ -4,6 +4,8 @@ import 'package:sapetshop/models/livro_model.dart';
 import 'package:sapetshop/views/add_emprestimo_screen.dart';
 import 'package:sapetshop/views/add_livro_screen.dart';
 import 'package:sapetshop/views/livro_detalhe_screen.dart';
+import 'package:sapetshop/screens/add_categoria_screen.dart';
+import 'package:sapetshop/screens/listar_categoria_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -40,138 +42,182 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Agrupa os livros por categoria
+    Map<String, List<Livro>> livrosPorCategoria = {};
+    for (var livro in _livros) {
+      livrosPorCategoria.putIfAbsent(livro.categoria, () => []).add(livro);
+    }
     return Scaffold(
       appBar: AppBar(title: Text("Biblioteca")),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+              child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Início'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.add),
+              title: Text('Novo Livro'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddLivroScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.category),
+              title: Text('Nova Categoria'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddCategoriaScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.list),
+              title: Text('Listar Categorias'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ListarCategoriaScreen()),
+                );
+              },
+            ),
+            // Adicione mais ListTile para outras funções do app
+          ],
+        ),
+      ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: _livros.length,
-              itemBuilder: (context, index) {
-                final livro = _livros[index];
-                return ListTile(
-                  title: Text(livro.titulo),
-                  subtitle: Text(livro.autor),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.menu_book),
-                    tooltip: "Ações do Livro",
-                    onPressed: () async {
-                      final controller = LivrosController();
-                      final historico = await controller.historicoEmprestimos(livro.id!);
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (context) => Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: SingleChildScrollView(
+          : ListView(
+              children: livrosPorCategoria.entries.map((entry) {
+                final categoria = entry.key;
+                final livros = entry.value;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Text(
+                        categoria,
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                      ),
+                    ),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.62,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: livros.length,
+                      itemBuilder: (context, idx) {
+                        final livro = livros[idx];
+                        return GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LivroDetalheScreen(livroId: livro.id!),
+                            ),
+                          ),
+                          child: Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             child: Column(
-                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                if (livro.capa.isNotEmpty)
-                                  Image.network(
-                                    livro.capa,
-                                    height: 180,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(Icons.broken_image, size: 100),
-                                    loadingBuilder: (context, child, progress) =>
-                                      progress == null ? child : const CircularProgressIndicator(),
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                                    child: livro.capa.isNotEmpty
+                                        ? Image.network(
+                                            livro.capa,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) =>
+                                                const Icon(Icons.broken_image, size: 60, color: Colors.grey),
+                                          )
+                                        : Container(
+                                            color: Colors.grey[200],
+                                            child: const Icon(Icons.menu_book, size: 60, color: Colors.grey),
+                                          ),
                                   ),
-                                Text("Título: ${livro.titulo}", style: const TextStyle(fontSize: 20)),
-                                Text("Autor: ${livro.autor}"),
-                                Text("ISBN: ${livro.isbn}"),
-                                Text("Ano: ${livro.ano}"),
-                                Text("Editora: ${livro.editora}"),
-                                Text("Gênero: ${livro.genero}"),
-                                Text("Tipo: ${livro.tipo}"),
-                                Text("Quantidade disponível: ${livro.quantidade}"),
-                                const Divider(),
-                                if (livro.tipo == "Físico") ...[
-                                  const Text("Histórico de Empréstimos/Devoluções:",
-                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                  historico.isEmpty
-                                      ? const Center(child: Text("Nenhum empréstimo registrado para este livro."))
-                                      : ListView.builder(
-                                          shrinkWrap: true,
-                                          physics: NeverScrollableScrollPhysics(),
-                                          itemCount: historico.length,
-                                          itemBuilder: (context, idx) {
-                                            final emp = historico[idx];
-                                            final isPendente = emp.dataDevolucao == null;
-                                            return Card(
-                                              margin: const EdgeInsets.symmetric(vertical: 4),
-                                              child: ListTile(
-                                                title: Text("Locatário: ${emp.nomeLocatario}"),
-                                                subtitle: Text(
-                                                    "Empréstimo: ${emp.dataEmprestimoFormatada}\n"
-                                                    "Previsão: ${emp.previsaoDevolucao.day}/${emp.previsaoDevolucao.month}/${emp.previsaoDevolucao.year}\n"
-                                                    "Devolução: ${emp.dataDevolucaoFormatada ?? 'Pendente'}"),
-                                                trailing: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    if (isPendente)
-                                                      IconButton(
-                                                        tooltip: "Registrar Devolução",
-                                                        onPressed: () async {
-                                                          await controller.registrarDevolucao(emp.id!);
-                                                          Navigator.pop(context);
-                                                          setState(() {});
-                                                        },
-                                                        icon: const Icon(Icons.assignment_turned_in, color: Colors.green),
-                                                      ),
-                                                    Icon(
-                                                      isPendente ? Icons.hourglass_empty : Icons.check_circle,
-                                                      color: isPendente ? Colors.orange : Colors.blue,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                  const SizedBox(height: 10),
-                                  ElevatedButton.icon(
-                                    icon: const Icon(Icons.add),
-                                    label: const Text("Registrar Empréstimo"),
-                                    onPressed: () async {
-                                      Navigator.pop(context);
-                                      await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => AddEmprestimoScreen(livroId: livro.id!),
-                                        ),
-                                      );
-                                      setState(() {});
-                                    },
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        livro.titulo,
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        livro.autor,
+                                        style: const TextStyle(fontSize: 14, color: Colors.black54),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                                const SizedBox(height: 10),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text("Fechar"),
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LivroDetalheScreen(livroId: livro.id!),
+                        );
+                      },
                     ),
-                  ),
+                  ],
                 );
-              }),
-      floatingActionButton: FloatingActionButton(
-        tooltip: "Adicionar Novo Livro",
-        onPressed: () async {
-          await Navigator.push(
-              context, MaterialPageRoute(builder: (context) => AddLivroScreen()));
-          _loadLivros();
-        },
-        child: Icon(Icons.add),
+              }).toList(),
+            ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'addCategoria',
+            tooltip: "Adicionar Nova Categoria",
+            child: Icon(Icons.category),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddCategoriaScreen()),
+              );
+              _loadLivros();
+            },
+          ),
+          SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'addLivro',
+            tooltip: "Adicionar Novo Livro",
+            onPressed: () async {
+              await Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => AddLivroScreen()));
+              _loadLivros();
+            },
+            child: Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }

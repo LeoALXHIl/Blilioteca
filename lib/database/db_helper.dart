@@ -22,11 +22,18 @@ class BibliotecaDBHelper {
 
   Future<Database> _initDatabase() async {
     final _dbPath = await getDatabasesPath();
-    final path = join(_dbPath, "biblioteca.db");
+    final path = join(_dbPath, "biblioteca_v2.db"); // nome alterado para forçar nova criação
     return await openDatabase(path, version: 2, onCreate: _onCreateDB, onUpgrade: _onUpgradeDB);
   }
 
   Future<void> _onCreateDB(Database db, int version) async {
+    // Tabela de categorias
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS categorias(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL UNIQUE
+      )
+    ''');
     // Tabela de livros
     await db.execute('''
       CREATE TABLE IF NOT EXISTS livros(
@@ -39,7 +46,8 @@ class BibliotecaDBHelper {
         genero TEXT NOT NULL,
         tipo TEXT NOT NULL,
         quantidade INTEGER NOT NULL,
-        capa TEXT
+        capa TEXT,
+        categoria TEXT NOT NULL
       )
     ''');
     // Tabela de empréstimos

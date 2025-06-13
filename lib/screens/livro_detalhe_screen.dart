@@ -49,7 +49,7 @@ class _LivroDetalheScreenState extends State<LivroDetalheScreen> {
       await _controllerLivros.registrarDevolucao(emprestimoId);
       await _loadLivroEmprestimos();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Devolução registrada com sucesso!")),
+        const SnackBar(content: Text("Devolução registrada")),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

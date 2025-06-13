@@ -1,7 +1,7 @@
 //formulario para adiconar novo livro
 
 import 'package:flutter/material.dart';
-import 'package:sapetshop/controllers/consultas_controller.dart';
+import 'package:sapetshop/controllers/livros_controller.dart';
 import 'package:sapetshop/models/livro_model.dart';
 import 'package:sapetshop/screens/home_screen.dart';
 
@@ -36,7 +36,7 @@ class _AddLivroScreenState extends State<AddLivroScreen> {
         genero: _genero,
         tipo: _tipo,
         quantidade: _quantidade,
-        capa: _capa,
+        capa: _capa, categoria: '',
       );
       //mando para o banco
       try {

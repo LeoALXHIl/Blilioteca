@@ -96,7 +96,7 @@ class _AddEmprestimoScreenState extends State<AddEmprestimoScreen> {
             genero: _livro!.genero,
             tipo: _livro!.tipo,
             quantidade: _livro!.quantidade - 1,
-            capa: _livro!.capa,
+            capa: _livro!.capa, categoria: '',
           ),
         );
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,1 +1,0 @@
-// Arquivo obsoleto. Remova do projeto.
